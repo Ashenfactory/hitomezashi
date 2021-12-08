@@ -8,7 +8,8 @@
     <style type="text/css">
       :root {
         --color-1: #cbc0d3;
-        --color-2: #efd3d7
+        --color-2: #efd3d7;
+        --color-3: #000000
     }
 
     html,
@@ -25,6 +26,7 @@
     }
 
     header {
+        width: fit-content;
         display: flex;
     }
     
@@ -45,6 +47,10 @@
 
     .input-container {
         margin-right: 2rem
+    }
+
+    .input-container:last-child {
+        margin-right: 1rem;
     }
 
     button {
@@ -90,7 +96,7 @@
         border-collapse: collapse
     }
 
-    table {
+    #tableContent {
         border: 1px solid #ccc
     }
 
@@ -106,22 +112,26 @@
     }
 
     th,
-    td:first-child {
+    #tableContent td:first-child {
         border: 1px solid #ccc
     }
 
+    #tableContent td:first-child {
+        background-color: transparent;
+    }
+
     th:not(:first-child):hover,
-    td:first-child:hover {
+    #tableContent td:first-child:hover {
         background-color: #caf0f8;
         cursor: pointer;
         color: #777
     }
 
-    td:not(:first-child) {
+    td {
         background-color: var(--color-1)
     }
 
-    td:not(:first-child).c2 {
+    td.c2 {
         background-color: var(--color-2)
     }
 
@@ -131,11 +141,11 @@
     }
 
     .bx {
-        border-right: 1px solid #000
+        border-right: 1px solid var(--color-3)
     }
 
     .by {
-        border-bottom: 1px solid #000
+        border-bottom: 1px solid var(--color-3)
     }
 
     label {
@@ -149,6 +159,18 @@
     .probability-input {
         width: 3rem
     }
+
+    .visually-hidden {
+        border: 0;
+        clip: rect(0 0 0 0);
+        height: auto;
+        margin: 0;
+        overflow: hidden;
+        padding: 0;
+        position: absolute;
+        width: 1px;
+        white-space: nowrap;
+    }
 </style>
 </head>
 
@@ -157,6 +179,7 @@
       <div class="input-container">      
         <button id="generate">Generate</button>
         <button id="palette">New palette</button>
+        <button id="image">Save image</button>
     </div>
     <div class="input-container">
         <label>Grid width</label>
@@ -175,14 +198,20 @@
         <input type="color" value="#cbc0d3" id="color1">
         <label>Color 2</label>
         <input type="color" value="#efd3d7" id="color2">
+        <label>Lines</label>
+        <input type="color" value="#000000" id="color3">
     </div>
 </header>
 <main>
-  <table id="tableContent">
-  </table>
-</main>
-</body>
+  <table id="tableContent"></table>
 
+  <div class="visually-hidden" aria-hidden="true">
+      <table id="saveImageContainer"></table>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/dom-to-image-more@2.9.5/dist/dom-to-image-more.min.js" integrity="sha256-R5wZ4OkG/PtxfpvdJIqyzPKdjbhU0Y88vrmVrz3w8aE=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js" integrity="sha256-xoh0y6ov0WULfXcLMoaA6nZfszdgI8w2CEJ/3k8NBIE=" crossorigin="anonymous"></script>
 <script>
     const palettes = [
         ['#cbc0d3', '#efd3d7'],
@@ -329,6 +358,27 @@
         }
     }
 
+    //Courtesy of @bryc (https://gist.github.com/iperelivskiy/4110988#gistcomment-2697447)
+    function funhash(s) {
+        for(var i = 0, h = 0xdeadbeef; i < s.length; i++)
+            h = Math.imul(h ^ s.charCodeAt(i), 2654435761);
+        return (h ^ h >>> 16) >>> 0;
+    };
+
+    function saveImage() {
+        const content = document.getElementById("tableContent").querySelector('tbody'),
+        container = document.getElementById('saveImageContainer');
+
+        container.innerHTML = content.innerHTML;
+        container.querySelectorAll('td:first-child').forEach((elem) => elem.remove());
+
+        domtoimage.toBlob(container).then(function (blob) {
+            const cssRoot = getComputedStyle(document.documentElement);
+
+            window.saveAs(blob, 'hito-' + funhash(JSON.stringify(baseStates) + JSON.stringify(alteredStates) + cssRoot.getPropertyValue('--color-1') + cssRoot.getPropertyValue('--color-2') + cssRoot.getPropertyValue('--color-3')));
+        });
+    }
+
     function init() {
         document.getElementById('tableContent').addEventListener('click', element => {
             const target = element.target.dataset;
@@ -355,25 +405,21 @@
             document.querySelector(':root').style.setProperty('--color-2', element.target.value);
         });
 
-        document.getElementById('sizeX').addEventListener('input', element => {
-            if (element.target.value < element.target.min) {
-                element.target.value = element.target.min;
-            }
+        document.getElementById('color3').addEventListener('input', element => {
+            document.querySelector(':root').style.setProperty('--color-3', element.target.value);
+        });
 
+        document.getElementById('sizeX').addEventListener('input', element => {
             generate();
         });
 
         document.getElementById('sizeY').addEventListener('input', element => {
-            if (element.target.value < element.target.min) {
-                element.target.value = element.target.min;
-            }
-
             generate();
         });
         
         document.getElementById('generate').addEventListener('click', generate);
-
         document.getElementById('palette').addEventListener('click', randomPalette);
+        document.getElementById('image').addEventListener('click', saveImage);
 
         randomPalette();
 
@@ -382,4 +428,5 @@
 
     init();
 </script>
+</body>
 </html>
