@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en-US">
-  <head>
+<head>
     <meta charset="utf-8">
     <title>Hitomezashi pattern generator</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,24 +9,45 @@
       :root {
         --color-1: #cbc0d3;
         --color-2: #efd3d7
-      }
+    }
 
-      html,
-      button,
-      input {
+    html,
+    body {
+        margin: 0;
+        padding: 0
+    }
+
+    html,
+    button,
+    input {
         font-family: -apple-system, BlinkMacSystemFont, avenir next, avenir, segoe ui, helvetica neue, helvetica, Ubuntu, roboto, noto, arial, sans-serif;
         font-size: 14px
-      }
+    }
 
-      header {
-        display: flex
-      }
+    header {
+        display: flex;
+    }
+    
+    main {
+        max-width: fit-content;
+        overflow: auto;
+        border: 1px solid #ccc
+    }
 
-      .input-container {
+    header,
+    main {
+        margin: 1rem
+    }
+
+    table {
+        overflow: auto
+    }
+
+    .input-container {
         margin-right: 2rem
-      }
+    }
 
-      button {
+    button {
         background-color: #2a9d8f;
         border: 1px solid #264653;
         border-radius: 4px;
@@ -37,144 +58,176 @@
         margin-top: 1.5rem;
         transition: opacity .15s ease-out;
         cursor: pointer;
-        box-shadow: 0 2px rgba(0, 0, 0, .8)
-      }
+        box-shadow: 0 2px rgba(0, 0, 0, .8);
+        display: block;
+        width: 100%;
+        position: relative
+    }
 
-      input {
+    input {
         margin-bottom: 1rem
-      }
+    }
 
-      label {
+    label {
         display: block;
         margin-bottom: .5rem
-      }
+    }
 
-      button:hover {
+    button:hover {
         opacity: .8
-      }
+    }
 
-      button:active {
+    button:active {
+        top: 2px;
+        box-shadow: none;
         opacity: .5
-      }
+    }
 
-      table,
-      th,
-      td {
+    table,
+    th,
+    td {
         border: none;
         border-collapse: collapse
-      }
+    }
 
-      table {
+    table {
         border: 1px solid #ccc
-      }
+    }
 
-      th,
-      td {
+    th,
+    td {
         height: 24px;
         width: 24px;
         min-height: 24px;
         min-width: 24px;
         font-weight: 700;
-        text-align: center
-      }
-
-      th,
-      td:first-child {
-        border: 1px solid #ccc
-      }
-
-      th:not(:first-child),
-      td:first-child {
+        text-align: center;
         transition: background .15s ease-out, color .15 ease-out
-      }
+    }
 
-      th:not(:first-child):hover,
-      td:first-child:hover {
+    th,
+    td:first-child {
+        border: 1px solid #ccc
+    }
+
+    th:not(:first-child):hover,
+    td:first-child:hover {
         background-color: #caf0f8;
         cursor: pointer;
         color: #777
-      }
+    }
 
-      td:not(:first-child) {
+    td:not(:first-child) {
         background-color: var(--color-1)
-      }
+    }
 
-      td:not(:first-child).c2 {
+    td:not(:first-child).c2 {
         background-color: var(--color-2)
-      }
+    }
 
-      th.altered,
-      td.altered {
+    th.altered,
+    td.altered {
         background-color: #90e0ef
-      }
+    }
 
-      .bx {
+    .bx {
         border-right: 1px solid #000
-      }
+    }
 
-      .by {
+    .by {
         border-bottom: 1px solid #000
-      }
+    }
 
-      label {
+    label {
         font-weight: 700
-      }
+    }
 
-      .grid-input {
+    .grid-input {
         width: 4rem
-      }
+    }
 
-      .probability-input {
+    .probability-input {
         width: 3rem
-      }
-    </style>
-  </head>
-  
-  <body>
+    }
+</style>
+</head>
+
+<body>
     <header>
       <div class="input-container">      
         <button id="generate">Generate</button>
-      </div>
-      <div class="input-container">
+        <button id="palette">New palette</button>
+    </div>
+    <div class="input-container">
         <label>Grid width</label>
         <input class="grid-input" type="number" min="0" id="sizeX" value="40">
         <label>Grid height</label>
         <input class="grid-input" type="number" min="0" id="sizeY" value="30">
-      </div>
-      <div class="input-container">      
+    </div>
+    <div class="input-container">      
         <label>Probability X</label>
         <input class="probability-input" type="number" min="0" max="100" id="probX" value="50">
         <label>Probability Y</label>
         <input class="probability-input" type="number" min="0" max="100" id="probY" value="50">
-      </div>
-      <div class="input-container">      
+    </div>
+    <div class="input-container">      
         <label>Color 1</label>
         <input type="color" value="#cbc0d3" id="color1">
         <label>Color 2</label>
         <input type="color" value="#efd3d7" id="color2">
-      </div>
-    </header>
-    <main>
-      <table id="tableContent">
-      </table>
-    </main>
-  </body>
+    </div>
+</header>
+<main>
+  <table id="tableContent">
+  </table>
+</main>
+</body>
 
-  <script>
+<script>
+    const palettes = [
+        ['#cbc0d3', '#efd3d7'],
+        ['#b71e56', '#fae48f'],
+        ['#d1bd06', '#257fbd'],
+        ['#dacb32', '#232323'],
+        ['#0f5ea3', '#b5c62a'],
+        ['#4f4a9e', '#e5e6c4'],
+        ['#d1bd06', '#9e63a5'],
+        ['#cd2d47', '#105fa4'],
+        ['#eeb301', '#257fbd'],
+        ['#ed7a10', '#7e3688'],
+        ['#d2be07', '#3c3279'],
+        ['#0e5da2', '#eee5c6'],
+        ['#6e3e92', '#f1f1f1'],
+        ['#4f4a9e', '#e19118'],
+        ['#d94239', '#1e95ad'],
+        ['#b81f57', '#f4d12f'],
+        ['#a8b800', '#412645'],
+        ['#4c6665', '#3f3f3f'],
+        ['#5f5162', '#3c3c3c'],
+        ['#705b5a', '#878787'],
+        ['#7dcbbe', '#9ab2b6'],
+        ['#c6dbe0', '#bda9aa'],
+        ['#e7d2cd', '#a1a1ad'],
+        ['#287772', '#4f636a'],
+        ['#beaaa3', '#9bb3b7'],
+        ['#e7d2cd', '#f0e7c8'],
+        ['#9ab2b6', '#d7d7d7'],
+        ['#473b2f', '#725b63'],
+        ['#402e2c', '#4d5665'],
+        ['#c4bb9e', '#bbabae'],
+        ['#6c7059', '#705961'],
+        ['#c4bb9e', '#98a2ac'],
+        ['#beaaa3', '#878787']
+    ];
+
     let baseStates = {
-            x: [],
-            y: []
-        },
-        alteredStates = {
-            x: {},
-            y: {}
-        };
-
-    function init() {
-        document.getElementById('generate').addEventListener('click', generate);
-
-        generate(true);
-    }
+        x: [],
+        y: []
+    },
+    alteredStates = {
+        x: {},
+        y: {}
+    };
 
     function generate(reseed = false) {
         if (reseed) {
@@ -189,9 +242,9 @@
         }
 
         const sizeX = Number(document.getElementById('sizeX').value),
-            sizeY = Number(document.getElementById('sizeY').value),
-            probX = Number(document.getElementById('probX').value),
-            probY = Number(document.getElementById('probY').value);
+        sizeY = Number(document.getElementById('sizeY').value),
+        probX = Number(document.getElementById('probX').value),
+        probY = Number(document.getElementById('probY').value);
 
         let initialPalette = false;
 
@@ -223,6 +276,7 @@
 
         for (let y = 0; y < sizeY; y++) {
             let currentPalette = initialPalette;
+            let changeYColor = states.y[y];
 
             html += '<tr><td ' + (alteredStates.y[y] ? 'class="altered" ' : '') + 'data-y="' + y + '">' + (states.y[y] ? 1 : 0) + '</td>';
 
@@ -248,7 +302,7 @@
                 html += '<td' + (borders.length ? ' class="' + borders.join(' ') + '"' : '') + '></td>';
             }
 
-            if ((sizeX & 1 ? !states.y[y] : states.y[y]) && baseStates.y[y] === baseStates.y[y + 1] || (sizeX & 1 ? !states.y[y] : states.y[y]) && baseStates.y[y] !== baseStates.y[y + 1]) {
+            if (changeYColor) {
                 initialPalette = !initialPalette;
             }
         }
@@ -262,47 +316,70 @@
         return Math.random() < probability / 100;
     }
 
-    document.getElementById('tableContent').addEventListener('click', element => {
-        const target = element.target.dataset;
+    function randomPalette() {
+        let palette = palettes[Math.floor(Math.random() * palettes.length)];
 
-        if (target.x) {
-            alteredStates.x[target.x] = 1 - (alteredStates.x[target.x] | 0);
+        if (document.getElementById('color1').value === palette[0] && document.getElementById('color2').value === palette[1]) {
+            randomPalette();
+        } else {
+            document.getElementById('color1').value = palette[0];
+            document.getElementById('color2').value = palette[1];
+            document.querySelector(':root').style.setProperty('--color-1', palette[0]);
+            document.querySelector(':root').style.setProperty('--color-2', palette[1]);
+        }
+    }
 
-            baseStates.x[target.x] = !baseStates.x[target.x];
+    function init() {
+        document.getElementById('tableContent').addEventListener('click', element => {
+            const target = element.target.dataset;
+
+            if (target.x) {
+                alteredStates.x[target.x] = 1 - (alteredStates.x[target.x] | 0);
+
+                baseStates.x[target.x] = !baseStates.x[target.x];
+                generate();
+            } else if (target.y) {
+                alteredStates.y[target.y] = 1 - (alteredStates.y[target.y] | 0);
+
+                baseStates.y[target.y] = !baseStates.y[target.y];
+                generate();
+            }
+
+        });
+
+        document.getElementById('color1').addEventListener('input', element => {
+            document.querySelector(':root').style.setProperty('--color-1', element.target.value);
+        });
+
+        document.getElementById('color2').addEventListener('input', element => {
+            document.querySelector(':root').style.setProperty('--color-2', element.target.value);
+        });
+
+        document.getElementById('sizeX').addEventListener('input', element => {
+            if (element.target.value < element.target.min) {
+                element.target.value = element.target.min;
+            }
+
             generate();
-        } else if (target.y) {
-            alteredStates.y[target.y] = 1 - (alteredStates.y[target.y] | 0);
+        });
 
-            baseStates.y[target.y] = !baseStates.y[target.y];
+        document.getElementById('sizeY').addEventListener('input', element => {
+            if (element.target.value < element.target.min) {
+                element.target.value = element.target.min;
+            }
+
             generate();
-        }
+        });
+        
+        document.getElementById('generate').addEventListener('click', generate);
 
-    });
+        document.getElementById('palette').addEventListener('click', randomPalette);
 
-    document.getElementById('color1').addEventListener('input', element => {
-        document.querySelector(':root').style.setProperty('--color-1', element.target.value);
-    });
+        randomPalette();
 
-    document.getElementById('color2').addEventListener('input', element => {
-        document.querySelector(':root').style.setProperty('--color-2', element.target.value);
-    });
-
-    document.getElementById('sizeX').addEventListener('input', element => {
-        if (element.target.value < element.target.min) {
-            element.target.value = element.target.min;
-        }
-
-        generate();
-    });
-
-    document.getElementById('sizeY').addEventListener('input', element => {
-        if (element.target.value < element.target.min) {
-            element.target.value = element.target.min;
-        }
-
-        generate();
-    });
+        generate(true);
+    }
 
     init();
-  </script>
+</script>
 </html>
